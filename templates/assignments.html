@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignments - Assignment Portal</title>
+    <style>
+        /* Reuse base styles from other pages */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ...existing sidebar styles... */
+
+        /* Assignment-specific styles */
+        .assignments-container {
+            flex: 1;
+            padding: 2rem;
+        }
+
+        .assignments-header {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .filter-group {
+            flex: 1;
+        }
+
+        .filter-group select, .filter-group input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .assignments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .assignment-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .assignment-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .assignment-status {
+            display: inline-block;
+            padding: 0.3rem 0.6rem;
+            border-radius: 3px;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+        }
+
+        .status-pending {
+            background-color: #f1c40f;
+            color: white;
+        }
+
+        .status-submitted {
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        .status-late {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .due-date {
+            color: #e74c3c;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            background: white;
+            border-radius: 8px;
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar placeholder - will be loaded dynamically -->
+        <div id="sidebar-placeholder"></div>
+
+        <div class="assignments-container">
+            <div class="assignments-header">
+                <h1>Assignments</h1>
+                <div class="filters">
+                    <div class="filter-group">
+                        <label for="courseFilter">Course</label>
+                        <select id="courseFilter">
+                            <option value="">All Courses</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="statusFilter">Status</label>
+                        <select id="statusFilter">
+                            <option value="">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="submitted">Submitted</option>
+                            <option value="graded">Graded</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="sortBy">Sort By</label>
+                        <select id="sortBy">
+                            <option value="dueDate">Due Date</option>
+                            <option value="title">Title</option>
+                            <option value="status">Status</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="assignments-grid" id="assignmentsGrid">
+                <!-- Assignments will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAssignments();
+            setupFilters();
+        });
+
+        function loadAssignments() {
+            const courseId = new URLSearchParams(window.location.search).get('courseId');
+            const status = document.getElementById('statusFilter').value;
+            const sortBy = document.getElementById('sortBy').value;
+
+            fetch(`/api/assignments?courseId=${courseId || ''}&status=${status}&sortBy=${sortBy}`)
+                .then(response => response.json())
+                .then(data => {
+                    displayAssignments(data.assignments);
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function displayAssignments(assignments) {
+            const grid = document.getElementById('assignmentsGrid');
+            
+            if (assignments.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <h2>No assignments found</h2>
+                        <p>There are no assignments matching your filters.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = assignments.map(assignment => `
+                <div class="assignment-card">
+                    <h3>${assignment.Title}</h3>
+                    <p>${assignment.Description}</p>
+                    <div class="due-date">Due: ${new Date(assignment.DueDate).toLocaleString()}</div>
+                    <div class="assignment-status status-${assignment.Status.toLowerCase()}">
+                        ${assignment.Status}
+                    </div>
+                    <button onclick="viewAssignment(${assignment.AssignmentID})" class="btn btn-primary">
+                        ${assignment.Status === 'pending' ? 'Submit' : 'View Details'}
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function setupFilters() {
+            ['courseFilter', 'statusFilter', 'sortBy'].forEach(filterId => {
+                document.getElementById(filterId).addEventListener('change', loadAssignments);
+            });
+        }
+
+        function viewAssignment(assignmentId) {
+            window.location.href = `/assignment/${assignmentId}`;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professor Dashboard - Assignment Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background: #2c3e50;
+            color: white;
+            padding: 2rem;
+        }
+
+        .sidebar-header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-nav a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            padding: 0.8rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .sidebar-nav a:hover {
+            background-color: #34495e;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card h3 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        /* Dashboard Sections */
+        .dashboard-section {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        /* Table Styles */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th, .data-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .data-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+
+        /* Button Styles */
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+
+        .logout-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .logout-btn:hover {
+            background-color: #c0392b;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 2rem;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .close {
+            float: right;
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        /* Professor-specific styles */
+        .course-assignments {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .assignment-stats {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .assignment-stat {
+            background: white;
+            padding: 0.8rem;
+            border-radius: 4px;
+            flex: 1;
+            text-align: center;
+        }
+
+        .grade-distribution {
+            height: 100px;
+            background: white;
+            margin: 1rem 0;
+            padding: 1rem;
+            border-radius: 4px;
+        }
+
+        .submission-row {
+            cursor: pointer;
+        }
+
+        .submission-row:hover {
+            background-color: #f5f5f5;
+        }
+
+        .feedback-input {
+            width: 100%;
+            min-height: 100px;
+            padding: 0.8rem;
+            margin: 1rem 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+        }
+
+        /* Add these new styles */
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .course-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .course-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+
+        .course-stat {
+            text-align: center;
+        }
+
+        .course-stat h4 {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .course-stat p {
+            color: #2c3e50;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .course-actions {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .course-detail-tabs {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 1rem;
+        }
+
+        .tab-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 1rem;
+            color: #666;
+            position: relative;
+        }
+
+        .tab-btn.active {
+            color: #3498db;
+            font-weight: 600;
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1rem;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #3498db;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 1rem 0;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .detail-item {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 4px;
+        }
+
+        .detail-item label {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .detail-item p {
+            color: #2c3e50;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .section-actions {
+            margin-bottom: 1rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: #eee;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: #2ecc71;
+            transition: width 0.3s ease;
+        }
+
+        .grade-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+            font-weight: 500;
+        }
+
+        .grade-good { background-color: #2ecc71; color: white; }
+        .grade-average { background-color: #f1c40f; color: white; }
+        .grade-poor { background-color: #e74c3c; color: white; }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Professor Portal</h2>
+            </div>
+            <ul class="sidebar-nav">
+                <li><a href="#dashboard" class="active">Dashboard</a></li>
+                <li><a href="#courses">My Courses</a></li>
+                <li><a href="#assignments">Assignments</a></li>
+                <li><a href="#submissions">Submissions</a></li>
+                <li><a href="#grades">Grade Management</a></li>
+                <li><a href="/logout" class="logout-btn">Logout</a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1>Professor Dashboard</h1>
+                <div class="user-info">
+                    <span id="professorName">Welcome, Professor</span>
+                </div>
+            </div>
+
+            <!-- Statistics Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Active Courses</h3>
+                    <div class="number" id="activeCourses">0</div>
+                    <p class="stat-trend">Currently Teaching</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Students</h3>
+                    <div class="number" id="totalStudents">0</div>
+                    <p class="stat-trend">Enrolled Students</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Pending Assignments</h3>
+                    <div class="number" id="pendingAssignments">0</div>
+                    <p class="stat-trend">Need Grading</p>
+                </div>
+            </div>
+
+            <!-- Teaching Courses Overview -->
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h2>My Teaching Courses</h2>
+                </div>
+                <div class="course-grid" id="teachingCourses">
+                    <!-- Courses will be populated here -->
+                </div>
+            </div>
+
+            <!-- Recent Submissions Section -->
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h2>Recent Submissions</h2>
+                </div>
+                <table class="data-table" id="submissionsTable">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Assignment</th>
+                            <th>Course</th>
+                            <th>Submission Date</th>
+                            <th>Grade</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Submissions will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Assignment Modal -->
+    <div id="createAssignmentModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('createAssignmentModal')">&times;</span>
+            <h2>Create New Assignment</h2>
+            <form id="createAssignmentForm">
+                <div class="form-group">
+                    <label for="courseSelect">Course</label>
+                    <select id="courseSelect" name="course_id" required>
+                        <!-- Courses will be populated here -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="assignmentTitle">Title</label>
+                    <input type="text" id="assignmentTitle" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="assignmentDescription">Description</label>
+                    <textarea id="assignmentDescription" name="description" class="feedback-input" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="dueDate">Due Date</label>
+                    <input type="datetime-local" id="dueDate" name="due_date" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Create Assignment</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Grade Submission Modal -->
+    <div id="gradeModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('gradeModal')">&times;</span>
+            <h2>Grade Submission</h2>
+            <form id="gradeForm">
+                <input type="hidden" id="submissionId" name="submissionId">
+                <div class="form-group">
+                    <label for="grade">Grade (out of <span id="maxPoints">100</span>)</label>
+                    <input type="number" id="grade" name="grade" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="feedback">Feedback</label>
+                    <textarea id="feedback" name="feedback" class="feedback-input"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit Grade</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Course Details Modal -->
+    <div id="courseDetailsModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <span class="close" onclick="closeModal('courseDetailsModal')">&times;</span>
+            <h2 id="courseDetailsTitle">Course Details</h2>
+            <div class="course-detail-tabs">
+                <button class="tab-btn active" data-tab="overview">Overview</button>
+                <button class="tab-btn" data-tab="students">Students</button>
+                <button class="tab-btn" data-tab="assignments">Assignments</button>
+            </div>
+            <div class="course-detail-content">
+                <div id="overview" class="tab-content active">
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <label>Course Code:</label>
+                            <p id="detailCourseCode"></p>
+                        </div>
+                        <div class="detail-item">
+                            <label>Semester:</label>
+                            <p id="detailSemester"></p>
+                        </div>
+                        <div class="detail-item">
+                            <label>Total Students:</label>
+                            <p id="detailStudents"></p>
+                        </div>
+                        <div class="detail-item">
+                            <label>Active Assignments:</label>
+                            <p id="detailAssignments"></p>
+                        </div>
+                    </div>
+                </div>
+                <div id="students" class="tab-content">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Student Name</th>
+                                <th>Progress</th>
+                                <th>Completed</th>
+                                <th>Average Grade</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsList">
+                        </tbody>
+                    </table>
+                </div>
+                <div id="assignments" class="tab-content">
+                    <div class="section-actions">
+                        <button class="btn btn-primary" onclick="createAssignment(currentCourseId)">
+                            Create New Assignment
+                        </button>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Due Date</th>
+                                <th>Submissions</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="assignmentsList">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Assignment Upload Modal -->
+    <div id="assignmentUploadModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('assignmentUploadModal')">&times;</span>
+            <h2>Upload New Assignment</h2>
+            <form id="assignmentUploadForm">
+                <input type="hidden" id="assignmentCourseId" name="course_id">
+                <div class="form-group">
+                    <label for="assignmentTitle">Assignment Title</label>
+                    <input type="text" id="assignmentTitle" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="assignmentDescription">Description</label>
+                    <textarea id="assignmentDescription" name="description" class="feedback-input" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="assignmentDueDate">Due Date</label>
+                    <input type="datetime-local" id="assignmentDueDate" name="due_date" required>
+                </div>
+                <div class="form-group">
+                    <label for="assignmentFile">Assignment File</label>
+                    <input type="file" id="assignmentFile" name="file" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Upload Assignment</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchProfessorDashboard();
+            setupEventListeners();
+        });
+
+        function fetchProfessorDashboard() {
+            fetch('/professor-dashboard')
+                .then(response => response.json())
+                .then(data => {
+                    updateDashboardStats(data.stats);
+                    displayTeachingCourses(data.courses);
+                    displaySubmissions(data.submissions); // Add this line
+                    document.getElementById('professorName').textContent = `Welcome, ${data.professor_name}`;
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        // Remove duplicate displayTeachingCourses function
+        // Keep only one version with all the stats displayed
+        function displayTeachingCourses(courses) {
+            const container = document.getElementById('teachingCourses');
+            if (!courses || courses.length === 0) {
+                container.innerHTML = '<p class="empty-message">No courses assigned yet.</p>';
+                return;
+            }
+
+            container.innerHTML = courses.map(course => `
+                <div class="course-card">
+                    <h3>${course.CourseName}</h3>
+                    <p class="course-code">${course.CourseCode}</p>
+                    <p class="semester">Semester ${course.Semester} - ${course.Year}</p>
+                    
+                    <div class="course-stats">
+                        <div class="course-stat">
+                            <h4>Students</h4>
+                            <p>${course.enrolled_students}</p>
+                        </div>
+                        <div class="course-stat">
+                            <h4>Assignments</h4>
+                            <p>${course.assignment_count}</p>
+                        </div>
+                        <div class="course-stat">
+                            <h4>Pending</h4>
+                            <p>${course.pending_submissions}</p>
+                        </div>
+                    </div>
+
+                    <div class="course-actions">
+                        <button class="btn btn-primary" onclick="viewCourseDetails(${course.CourseID})">
+                            View Details
+                        </button>
+                        <button class="btn btn-primary" onclick="openAssignmentModal(${course.CourseID})">
+                            Upload Assignment
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Fix the displayAssignmentsList function 
+        function displayAssignmentsList(assignments) {
+            const tbody = document.getElementById('assignmentsList');
+            tbody.innerHTML = assignments.map(assignment => `
+                <tr>
+                    <td>${assignment.title}</td>
+                    <td>${new Date(assignment.due_date).toLocaleString()}</td>
+                    <td>${assignment.submission_count}/${assignment.total_students}</td>
+                    <td>
+                        <button class="btn btn-danger" onclick="deleteAssignment(${assignment.id}, '${assignment.title}')">
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function setupEventListeners() {
+            document.getElementById('createAssignmentForm').addEventListener('submit', handleAssignmentCreation);
+            document.getElementById('gradeForm').addEventListener('submit', handleGradeSubmission);
+            document.getElementById('assignmentUploadForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                
+                fetch('/api/assignments/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Assignment uploaded successfully');
+                        closeModal('assignmentUploadModal');
+                        fetchProfessorDashboard();  // Refresh the dashboard
+                    } else {
+                        alert(data.message || 'Failed to upload assignment');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while uploading the assignment');
+                });
+            });
+        }
+
+        function handleAssignmentCreation(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            
+            fetch('/courses/' + formData.get('course_id') + '/assignments', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                if (data.message.includes('successfully')) {
+                    closeModal('createAssignmentModal');
+                    fetchProfessorDashboard();
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function handleGradeSubmission(e) {
+            e.preventDefault();
+            const submissionId = document.getElementById('submissionId').value;
+            const grade = document.getElementById('grade').value;
+            const feedback = document.getElementById('feedback').value;
+
+            const data = {
+                grade: parseInt(grade),
+                feedback: feedback
+            };
+
+            fetch(`/submissions/${submissionId}/grade`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Grade submitted successfully');
+                    closeModal('gradeModal');
+                    fetchProfessorDashboard(); // Refresh the dashboard
+                } else {
+                    alert(data.message || 'Failed to submit grade');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while submitting the grade');
+            });
+        }
+
+        // Modal functions
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            if (event.target.className === 'modal') {
+                event.target.style.display = 'none';
+            }
+        };
+
+        // Add live update functionality
+        function updateDashboardStats() {
+            fetch('/professor-dashboard')
+                .then(response => response.json())
+                .then(data => {
+                    updateStatWithAnimation('activeCourses', data.stats.active_courses);
+                    updateStatWithAnimation('totalStudents', data.stats.total_students);
+                    updateStatWithAnimation('pendingAssignments', data.stats.pending_assignments);
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function updateStatWithAnimation(elementId, newValue) {
+            const element = document.getElementById(elementId);
+            const currentValue = parseInt(element.textContent);
+            
+            if (currentValue !== newValue) {
+                element.classList.add('number-changing');
+                element.textContent = newValue;
+                
+                setTimeout(() => {
+                    element.classList.remove('number-changing');
+                }, 500);
+            }
+        }
+
+        // Initial load and set interval for live updates
+        updateDashboardStats();
+        setInterval(updateDashboardStats, 5000); // Update every 5 seconds
+
+        // Add to your existing script
+        let currentCourseId = null;
+
+        function viewCourseDetails(courseId) {
+            currentCourseId = courseId;
+            fetch(`/api/courses/${courseId}/details`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Update course details modal content
+                    document.getElementById('courseDetailsTitle').textContent = data.name;
+                    document.getElementById('detailCourseCode').textContent = data.code;
+                    document.getElementById('detailSemester').textContent = `Semester ${data.semester} - ${data.year}`;
+                    document.getElementById('detailStudents').textContent = data.enrolled_count;
+                    document.getElementById('detailAssignments').textContent = data.active_assignments;
+                    
+                    // Update students list
+                    updateStudentsList(data.students);
+                    
+                    // Update assignments list
+                    updateAssignmentsList(data.assignments);
+                    
+                    // Show the modal
+                    openModal('courseDetailsModal');
+                    
+                    // Activate first tab
+                    document.querySelector('.tab-btn[data-tab="overview"]').click();
+                })
+                .catch(error => {
+                    console.error('Error fetching course details:', error);
+                    alert('Failed to load course details');
+                });
+        }
+
+        function updateStudentsList(students) {
+            const tbody = document.getElementById('studentsList');
+            if (!students || students.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4">No students enrolled</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = students.map(student => {
+                const progress = (student.completed_assignments / student.total_assignments) * 100 || 0;
+                const gradeClass = student.average_grade >= 80 ? 'grade-good' : 
+                                 student.average_grade >= 60 ? 'grade-average' : 'grade-poor';
+                
+                return `
+                    <tr>
+                        <td>${student.name}</td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${progress}%"></div>
+                            </div>
+                            <small>${progress.toFixed(1)}%</small>
+                        </td>
+                        <td>${student.completed_assignments || 0}/${student.total_assignments || 0}</td>
+                        <td><span class="grade-badge ${gradeClass}">${student.average_grade?.toFixed(1) || 'N/A'}</span></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updateAssignmentsList(assignments) {
+            const tbody = document.getElementById('assignmentsList');
+            if (!assignments || assignments.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4">No assignments created yet</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = assignments.map(assignment => `
+                <tr>
+                    <td>${assignment.title}</td>
+                    <td>${new Date(assignment.due_date).toLocaleString()}</td>
+                    <td>${assignment.submission_count}/${assignment.total_students}</td>
+                    <td>
+                        <button class="btn btn-danger" onclick="deleteAssignment(${assignment.id}, '${assignment.title}')">
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Add tab switching functionality
+        document.querySelectorAll('.tab-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                // Remove active class from all tabs and contents
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                
+                // Add active class to clicked tab and corresponding content
+                button.classList.add('active');
+                document.getElementById(button.dataset.tab).classList.add('active');
+            });
+        });
+
+        function openAssignmentModal(courseId) {
+            document.getElementById('assignmentCourseId').value = courseId;
+            openModal('assignmentUploadModal');
+            
+            // Setup dropzone functionality
+            const dropzone = document.getElementById('assignmentDropzone');
+            const fileInput = document.getElementById('assignmentFile');
+
+            dropzone.onclick = () => fileInput.click();
+            
+            dropzone.ondragover = (e) => {
+                e.preventDefault();
+                dropzone.classList.add('drag-over');
+            };
+            
+            dropzone.ondragleave = () => dropzone.classList.remove('drag-over');
+            
+            dropzone.ondrop = (e) => {
+                e.preventDefault();
+                dropzone.classList.remove('drag-over');
+                if (e.dataTransfer.files.length) {
+                    fileInput.files = e.dataTransfer.files;
+                    updateDropzoneText(e.dataTransfer.files[0].name);
+                }
+            };
+
+            fileInput.onchange = () => {
+                if (fileInput.files.length) {
+                    updateDropzoneText(fileInput.files[0].name);
+                }
+            };
+        }
+
+        function updateDropzoneText(filename) {
+            document.querySelector('#assignmentDropzone p').textContent = `Selected file: ${filename}`;
+        }
+
+        function deleteAssignment(assignmentId, title) {
+            if (!confirm(`Are you sure you want to delete assignment "${title}"? This cannot be undone.`)) {
+                return;
+            }
+
+            fetch(`/api/assignments/${assignmentId}/delete`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Assignment deleted successfully');
+                    // Refresh the current course details
+                    viewCourseDetails(currentCourseId);
+                    // Also refresh the main dashboard to update stats
+                    fetchProfessorDashboard();
+                } else {
+                    alert(data.message || 'Failed to delete assignment');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while deleting the assignment');
+            });
+        }
+
+        // Add this new function
+        function displaySubmissions(submissions) {
+            const tbody = document.querySelector('#submissionsTable tbody');
+            if (!submissions || submissions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center">No recent submissions</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = submissions.map(submission => {
+                const submissionDate = new Date(submission.SubmissionDate).toLocaleString();
+                const gradeDisplay = submission.Grade 
+                    ? `<span class="grade-badge">${submission.Grade}/${submission.MaxPoints}</span>`
+                    : `<button class="btn btn-primary" onclick="openGradeModal(${submission.SubmissionID}, ${submission.MaxPoints})">
+                        Grade
+                       </button>`;
+                
+                return `
+                    <tr>
+                        <td>${submission.student_name}</td>
+                        <td>${submission.assignment_title}</td>
+                        <td>${submission.course_name}</td>
+                        <td>${submissionDate}</td>
+                        <td>${gradeDisplay}</td>
+                        <td>
+                            <button class="btn btn-primary" onclick="downloadSubmission(${submission.SubmissionID})">
+                                Download
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function openGradeModal(submissionId, maxPoints) {
+            document.getElementById('submissionId').value = submissionId;
+            document.getElementById('maxPoints').textContent = maxPoints;
+            document.getElementById('grade').max = maxPoints;
+            document.getElementById('gradeForm').reset();
+            openModal('gradeModal');
+        }
+    </script>
+</body>
+</html>

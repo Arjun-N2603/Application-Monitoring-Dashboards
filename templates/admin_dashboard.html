@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Assignment Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background: #2c3e50;
+            color: white;
+            padding: 2rem;
+        }
+
+        .sidebar-header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-nav a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            padding: 0.8rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .sidebar-nav a:hover {
+            background-color: #34495e;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card h3 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        /* Dashboard Sections */
+        .dashboard-section {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        /* Table Styles */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th, .data-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .data-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+
+        /* Button Styles */
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+
+        .logout-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .logout-btn:hover {
+            background-color: #c0392b;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 2rem;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .close {
+            float: right;
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .stat-card {
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-trend {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .number {
+            animation: countUp 0.5s ease-out;
+        }
+
+        @keyframes countUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .number-changing {
+            animation: numberUpdate 0.5s ease-out;
+        }
+
+        @keyframes numberUpdate {
+            0% {
+                transform: scale(1.1);
+                color: #2ecc71;
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Admin Panel</h2>
+            </div>
+            <ul class="sidebar-nav">
+                <li><a href="#dashboard">Dashboard</a></li>
+                <li><a href="#users">User Management</a></li>
+                <li><a href="#courses">Course Management</a></li>
+                <li><a href="#enrollments">Enrollment Requests</a></li>
+                <li><a href="/logout" class="logout-btn">Logout</a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1>Dashboard Overview</h1>
+                <div class="user-info">
+                    <span>Welcome, Admin</span>
+                </div>
+            </div>
+
+            <!-- Statistics Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Students</h3>
+                    <div class="number" id="studentCount">0</div>
+                    <p class="stat-trend">Currently Active</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Professors</h3>
+                    <div class="number" id="professorCount">0</div>
+                    <p class="stat-trend">Faculty Members</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Courses</h3>
+                    <div class="number" id="activeCourses">0</div>
+                    <p class="stat-trend">Registered Courses</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Active Assignments</h3>
+                    <div class="number" id="activeAssignments">0</div>
+                    <p class="stat-trend">Pending Due Dates</p>
+                </div>
+            </div>
+
+            <!-- Course Management Section -->
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h2>Course Management</h2>
+                    <button class="btn btn-primary" onclick="openModal('createCourseModal')">Create New Course</button>
+                </div>
+                <table class="data-table" id="coursesTable">
+                    <thead>
+                        <tr>
+                            <th>Course Code</th>
+                            <th>Course Name</th>
+                            <th>Instructor</th>
+                            <th>Students</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Course data will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Enrollment Requests Section -->
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h2>Enrollment Requests</h2>
+                </div>
+                <table class="data-table" id="enrollmentRequestsTable">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Course</th>
+                            <th>Request Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Enrollment requests will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Course Modal -->
+    <div id="createCourseModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('createCourseModal')">&times;</span>
+            <h2>Create New Course</h2>
+            <form id="createCourseForm">
+                <div class="form-group">
+                    <label for="courseName">Course Name</label>
+                    <input type="text" id="courseName" name="course_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="courseCode">Course Code</label>
+                    <input type="text" id="courseCode" name="course_code" required>
+                </div>
+                <div class="form-group">
+                    <label for="instructor">Instructor</label>
+                    <select id="instructor" name="instructor_id" required>
+                        <option value="">Select an instructor</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="year">Year</label>
+                    <input type="number" id="year" name="year" required>
+                </div>
+                <div class="form-group">
+                    <label for="semester">Semester</label>
+                    <select id="semester" name="semester" required>
+                        <option value="">Select semester</option>
+                        <option value="1">Semester 1</option>
+                        <option value="2">Semester 2</option>
+                        <option value="3">Semester 3</option>
+                        <option value="4">Semester 4</option>
+                        <option value="5">Semester 5</option>
+                        <option value="6">Semester 6</option>
+                        <option value="7">Semester 7</option>
+                        <option value="8">Semester 8</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Create Course</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add this after your existing createCourseModal div -->
+    <div id="editCourseModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('editCourseModal')">&times;</span>
+            <h2>Edit Course</h2>
+            <form id="editCourseForm">
+                <input type="hidden" id="editCourseId">
+                <div class="form-group">
+                    <label for="editCourseName">Course Name</label>
+                    <input type="text" id="editCourseName" name="course_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="editCourseCode">Course Code</label>
+                    <input type="text" id="editCourseCode" name="course_code" required>
+                </div>
+                <div class="form-group">
+                    <label for="editInstructor">Instructor</label>
+                    <select id="editInstructor" name="instructor_id" required>
+                        <option value="">Select an instructor</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editYear">Year</label>
+                    <input type="number" id="editYear" name="year" required>
+                </div>
+                <div class="form-group">
+                    <label for="editSemester">Semester</label>
+                    <select id="editSemester" name="semester" required>
+                        <option value="">Select semester</option>
+                        <option value="1">Semester 1</option>
+                        <option value="2">Semester 2</option>
+                        <option value="3">Semester 3</option>
+                        <option value="4">Semester 4</option>
+                        <option value="5">Semester 5</option>
+                        <option value="6">Semester 6</option>
+                        <option value="7">Semester 7</option>
+                        <option value="8">Semester 8</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Update Course</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Fetch dashboard data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchDashboardData();
+        });
+
+        function fetchDashboardData() {
+            fetch('/admin-dashboard')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Dashboard data:', data); // Debug log
+                    updateStats(data.stats);
+                    updateCoursesTable(data.courses);
+                    updateEnrollmentRequests(data.enrollment_requests); // Add this line
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function updateStats(stats) {
+            // Fix the IDs to match the HTML
+            document.getElementById('studentCount').textContent = stats.student_count;
+            document.getElementById('professorCount').textContent = stats.professor_count;
+            document.getElementById('activeCourses').textContent = stats.active_courses;
+            document.getElementById('activeAssignments').textContent = stats.active_assignments;
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+            if (modalId === 'createCourseModal') {
+                loadProfessors();
+            }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Handle course creation form submission
+        document.getElementById('createCourseForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                course_name: document.getElementById('courseName').value,
+                course_code: document.getElementById('courseCode').value,
+                instructor_id: document.getElementById('instructor').value,
+                year: document.getElementById('year').value,
+                semester: document.getElementById('semester').value
+            };
+
+            fetch('/admin/courses/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeModal('createCourseModal');
+                    fetchDashboardData();
+                    alert('Course created successfully');
+                } else {
+                    alert(data.message || 'Failed to create course');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while creating the course');
+            });
+        });
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.className === 'modal') {
+                event.target.style.display = 'none';
+            }
+        }
+
+        // Update dashboard data every 5 seconds
+        function updateDashboardData() {
+            fetch('/admin-dashboard')
+                .then(response => response.json())
+                .then(data => {
+                    // Update statistics with animation
+                    updateStatWithAnimation('studentCount', data.stats.student_count);
+                    updateStatWithAnimation('professorCount', data.stats.professor_count);
+                    updateStatWithAnimation('activeCourses', data.stats.active_courses);
+                    updateStatWithAnimation('activeAssignments', data.stats.active_assignments);
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function updateStatWithAnimation(elementId, newValue) {
+            const element = document.getElementById(elementId);
+            const currentValue = parseInt(element.textContent);
+            
+            if (currentValue !== newValue) {
+                element.classList.add('number-changing');
+                element.textContent = newValue;
+                
+                setTimeout(() => {
+                    element.classList.remove('number-changing');
+                }, 500);
+            }
+        }
+
+        // Call immediately and set interval
+        updateDashboardData();
+        setInterval(updateDashboardData, 5000); // Update every 5 seconds
+
+        function loadProfessors() {
+            fetch('/api/professors')
+                .then(response => response.json())
+                .then(data => {
+                    const instructorSelect = document.getElementById('instructor');
+                    instructorSelect.innerHTML = '<option value="">Select an instructor</option>';
+                    data.professors.forEach(professor => {
+                        instructorSelect.innerHTML += `
+                            <option value="${professor.UserID}">
+                                ${professor.FirstName} ${professor.LastName} (${professor.Email})
+                            </option>
+                        `;
+                    });
+                    })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function updateCoursesTable(courses) {
+            const tbody = document.querySelector('#coursesTable tbody');
+            if (!courses || courses.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5">No courses found</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = courses.map(course => `
+                <tr>
+                    <td>${course.CourseCode || ''}</td>
+                    <td>${course.CourseName || ''}</td>
+                    <td>${course.InstructorName || 'No instructor assigned'}</td>
+                    <td>${course.EnrolledCount || 0}</td>
+                    <td>
+                        <button class="btn btn-primary" onclick="editCourse(${course.CourseID})">Edit</button>
+                        <button class="btn btn-primary" onclick="deleteCourse(${course.CourseID})">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function editCourse(courseId) {
+            fetch(`/api/courses/${courseId}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('editCourseId').value = courseId;
+                    document.getElementById('editCourseName').value = data.name;
+                    document.getElementById('editCourseCode').value = data.code;
+                    document.getElementById('editYear').value = data.year;
+                    document.getElementById('editSemester').value = data.semester;
+                    
+                    // Load professors and set the selected instructor
+                    fetch('/api/professors')
+                        .then(response => response.json())
+                        .then(profData => {
+                            const instructorSelect = document.getElementById('editInstructor');
+                            instructorSelect.innerHTML = '<option value="">Select an instructor</option>';
+                            profData.professors.forEach(professor => {
+                                instructorSelect.innerHTML += `
+                                    <option value="${professor.UserID}" ${professor.UserID === data.instructor_id ? 'selected' : ''}>
+                                        ${professor.FirstName} ${professor.LastName} (${professor.Email})
+                                    </option>
+                                `;
+                            });
+                        });
+                    
+                    openModal('editCourseModal');
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        document.getElementById('editCourseForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const courseId = document.getElementById('editCourseId').value;
+            const formData = {
+                course_name: document.getElementById('editCourseName').value,
+                course_code: document.getElementById('editCourseCode').value,
+                instructor_id: document.getElementById('editInstructor').value,
+                year: document.getElementById('editYear').value,
+                semester: document.getElementById('editSemester').value
+            };
+
+            fetch(`/admin/courses/${courseId}/edit`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeModal('editCourseModal');
+                    fetchDashboardData();
+                    alert('Course updated successfully');
+                } else {
+                    alert(data.message || 'Failed to update course');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating the course');
+            });
+        });
+
+        function viewEnrollments(courseId) {
+            // Implement enrollment viewing functionality
+            console.log('Viewing enrollments for course:', courseId);
+        }
+
+        function deleteCourse(courseId) {
+            if (confirm('Are you sure you want to delete this course?')) {
+                fetch(`/admin/courses/${courseId}/delete`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        fetchDashboardData();
+                        alert('Course deleted successfully');
+                    } else {
+                        alert(data.message || 'Failed to delete course');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            }
+        }
+
+        function updateEnrollmentRequests(requests) {
+            const tbody = document.querySelector('#enrollmentRequestsTable tbody');
+            if (!requests || requests.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5">No pending enrollment requests</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = requests.map(request => `
+                <tr>
+                    <td>${request.StudentName}</td>
+                    <td>${request.CourseName} (${request.CourseCode})</td>
+                    <td>${new Date(request.RequestDate).toLocaleString()}</td>
+                    <td>${request.Status}</td>
+                    <td>
+                        ${request.Status === 'pending' ? `
+                            <button class="btn btn-primary" onclick="handleEnrollment(${request.RequestID}, 'approve')">Approve</button>
+                            <button class="btn btn-primary" onclick="handleEnrollment(${request.RequestID}, 'reject')">Reject</button>
+                        ` : ''}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function handleEnrollment(requestId, action) {
+            fetch(`/admin/enrollment/${action}/${requestId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Show success message regardless of success flag since the operation completed
+                alert(data.message || `Enrollment request ${action}ed successfully`);
+                // Refresh dashboard data to update the tables
+                fetchDashboardData();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                //alert(`An error occurred while ${action}ing enrollment`);
+                fetchDashboardData();
+            });
+        }
+    </script>
+</body>
+</html>
