@@ -22,22 +22,32 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max-limit
 socketio = SocketIO(app)
 
 # Database connection 
-mydb = mysql.connector.connect(
-    host=DATABASE_HOST,
-    user=DATABASE_USER,
-    password=DATABASE_PASSWORD,
-    database=DATABASE_NAME
-)
+try:
+    mydb = mysql.connector.connect(
+        host=DATABASE_HOST,
+        user=DATABASE_USER,
+        password=DATABASE_PASSWORD,
+        database=DATABASE_NAME
+    )
+    print("Database connection established successfully.")
+except mysql.connector.Error as err:
+    print(f"Error connecting to the database: {err}")
+    exit(1)  # Exit if the database connection fails
 
 # Kafka Configuration
 KAFKA_BOOTSTRAP_SERVERS = 'localhost:9092'
 API_ACCESS_TOPIC = 'api_access_logs'
 
 # Initialize Kafka Producer
-producer = KafkaProducer(
-    bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
-    value_serializer=lambda v: json.dumps(v).encode('utf-8')
-)
+try:
+    producer = KafkaProducer(
+        bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
+        value_serializer=lambda v: json.dumps(v).encode('utf-8')
+    )
+    print("Kafka producer initialized successfully.")
+except Exception as e:
+    print(f"Error initializing Kafka producer: {e}")
+    exit(1)  # Exit if Kafka producer initialization fails
 
 # Middleware to log all requests and responses
 @app.before_request
@@ -1311,6 +1321,7 @@ def trigger_dashboard_update():
 @login_required
 def visualizations_page():
     """Serve the visualizations dashboard page."""
+    
     # Get Grafana URL and access details
     grafana_url = "http://localhost:3000"  # Change if your Grafana is hosted elsewhere
     
@@ -1321,4 +1332,8 @@ def visualizations_page():
                            user_role=session.get('role', 'guest'))
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    try:
+        socketio.run(app, debug=True)
+    except Exception as e:
+        print(f"Application failed to start: {e}")
+        exit(1)

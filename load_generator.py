@@ -18,9 +18,9 @@ class APILoadGenerator:
         self.running = False
         # Define user credentials for each role
         self.user_credentials = [
-            {"username": "admin", "password": "admin123", "role": "admin"},
-            {"username": "professor", "password": "prof123", "role": "professor"},
-            {"username": "student", "password": "student123", "role": "student"}
+            {"username": "admin2", "password": "admin2", "role": "admin"},
+            {"username": "prof", "password": "prof", "role": "professor"},
+            {"username": "student", "password": "student", "role": "student"}
         ]
         # Define endpoints accessible by each role
         self.role_endpoints = {
