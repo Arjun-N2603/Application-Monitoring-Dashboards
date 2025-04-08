@@ -1320,16 +1320,17 @@ def trigger_dashboard_update():
 @app.route('/visualizations')
 @login_required
 def visualizations_page():
-    """Serve the visualizations dashboard page."""
+    """Serve the visualizations dashboard page with Grafana integration."""
+    # Only admin can access the visualization dashboard
+    if session.get('role') != 'admin':
+        return redirect(url_for('index'))
     
-    # Get Grafana URL and access details
-    grafana_url = "http://localhost:3000"  # Change if your Grafana is hosted elsewhere
-    
-    # You could also generate a direct dashboard URL with embed token if needed
+    # Set Grafana URL based on environment (Docker or local)
+    grafana_url = "http://localhost:3000"
     
     return render_template('visualizations.html', 
                            grafana_url=grafana_url,
-                           user_role=session.get('role', 'guest'))
+                           user_role='admin')
 
 if __name__ == '__main__':
     try:
