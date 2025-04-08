@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoring Dashboards - Assignment Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background: #2c3e50;
+            color: white;
+            padding: 2rem;
+        }
+
+        .sidebar-header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-nav a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            padding: 0.8rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .sidebar-nav a:hover {
+            background-color: #34495e;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        /* Dashboard Iframe */
+        .grafana-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dashboard-tabs {
+            display: flex;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .dashboard-tab {
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 1rem;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .dashboard-tab.active {
+            border-bottom: 3px solid #3498db;
+            color: #3498db;
+            font-weight: bold;
+        }
+
+        .dashboard-frame {
+            flex: 1;
+            width: 100%;
+            height: calc(100vh - 200px);
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .dashboard-description {
+            background: white;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .dashboard-description h3 {
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+
+        .logout-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .logout-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .loading-indicator {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Monitoring</h2>
+            </div>
+            <ul class="sidebar-nav">
+                <li><a href="/admin-dashboard-page" id="home-link">Admin Dashboard</a></li>
+                <li><a href="#api-dashboard" class="dashboard-link active" data-dashboard="api">API Monitoring</a></li>
+                <li><a href="#traffic-dashboard" class="dashboard-link" data-dashboard="traffic">Traffic Analysis</a></li>
+                <li><a href="#error-dashboard" class="dashboard-link" data-dashboard="errors">Error Tracking</a></li>
+                <li><a href="#logs-dashboard" class="dashboard-link" data-dashboard="logs">Real-Time Logs</a></li>
+                <li><a href="/logout">Logout</a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1>Monitoring Dashboards</h1>
+                <div>
+                    <button class="btn btn-primary" id="refresh-btn">Refresh Data</button>
+                </div>
+            </div>
+
+            <div class="dashboard-description">
+                <h3 id="current-dashboard-title">API Monitoring Dashboard</h3>
+                <p id="current-dashboard-description">
+                    This dashboard displays key metrics about API performance, including request counts, 
+                    response times, and error rates. Use this to monitor the health and performance of 
+                    your application's APIs.
+                </p>
+            </div>
+
+            <div class="grafana-container">
+                <div id="loading" class="loading-indicator">
+                    <p>Loading dashboard...</p>
+                </div>
+                <iframe 
+                    id="grafana-frame" 
+                    class="dashboard-frame" 
+                    src="{{ grafana_url }}/d/api-monitoring/api-monitoring-dashboard?orgId=1&refresh=5s&from=now-1h&to=now&theme=light" 
+                    allowfullscreen>
+                </iframe>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize dashboard descriptions
+            const dashboardInfo = {
+                'api': {
+                    title: 'API Monitoring Dashboard',
+                    description: 'This dashboard displays key metrics about API performance, including request counts, response times, and error rates. Use this to monitor the health and performance of your application\'s APIs.',
+                    path: '/d/api-monitoring/api-monitoring-dashboard'
+                },
+                'traffic': {
+                    title: 'Traffic Analysis Dashboard',
+                    description: 'Analyze user traffic patterns, popular endpoints, and user engagement metrics. This dashboard helps identify usage trends and optimize user experience.',
+                    path: '/d/traffic-analysis/traffic-analysis-dashboard'
+                },
+                'errors': {
+                    title: 'Error Tracking Dashboard',
+                    description: 'Monitor application errors, exceptions, and issues in real-time. This dashboard helps quickly identify and troubleshoot problems affecting users.',
+                    path: '/d/error-tracking/error-tracking-dashboard'
+                },
+                'logs': {
+                    title: 'Real-Time Logs Dashboard',
+                    description: 'View application logs in real-time to monitor system activity, debug issues, and track user actions across the platform.',
+                    path: '/d/real-time-logs/real-time-logs-dashboard'
+                }
+            };
+
+            // Dashboard navigation
+            const dashboardLinks = document.querySelectorAll('.dashboard-link');
+            const grafanaFrame = document.getElementById('grafana-frame');
+            const dashboardTitle = document.getElementById('current-dashboard-title');
+            const dashboardDescription = document.getElementById('current-dashboard-description');
+            const loadingIndicator = document.getElementById('loading');
+            const grafanaBaseUrl = '{{ grafana_url }}';
+
+            dashboardLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Update active state
+                    dashboardLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Get dashboard type
+                    const dashboardType = this.getAttribute('data-dashboard');
+                    const dashboard = dashboardInfo[dashboardType];
+                    
+                    if (dashboard) {
+                        // Show loading indicator
+                        loadingIndicator.style.display = 'block';
+                        grafanaFrame.style.opacity = '0.3';
+                        
+                        // Update dashboard info
+                        dashboardTitle.textContent = dashboard.title;
+                        dashboardDescription.textContent = dashboard.description;
+                        
+                        // Update iframe source
+                        if (dashboardType === 'api') {
+                            // The api-monitoring dashboard should exist from your provisioning
+                            grafanaFrame.src = `${grafanaBaseUrl}/d/api-monitoring/api-monitoring-dashboard?orgId=1&refresh=5s&from=now-1h&to=now&theme=light`;
+                        } else {
+                            // For other dashboards, we'll default to the API monitoring one since they don't exist yet
+                            // In a production environment, you would create these additional dashboards
+                            grafanaFrame.src = `${grafanaBaseUrl}/d/api-monitoring/api-monitoring-dashboard?orgId=1&refresh=5s&from=now-1h&to=now&theme=light`;
+                        }
+                        
+                        // Hide loading when iframe loads
+                        grafanaFrame.onload = function() {
+                            loadingIndicator.style.display = 'none';
+                            grafanaFrame.style.opacity = '1';
+                        };
+                    }
+                });
+            });
+
+            // Refresh button
+            document.getElementById('refresh-btn').addEventListener('click', function() {
+                // Show loading indicator
+                loadingIndicator.style.display = 'block';
+                grafanaFrame.style.opacity = '0.3';
+                
+                // Reload iframe
+                grafanaFrame.src = grafanaFrame.src;
+                
+                // Hide loading when iframe loads
+                grafanaFrame.onload = function() {
+                    loadingIndicator.style.display = 'none';
+                    grafanaFrame.style.opacity = '1';
+                };
+            });
+        });
+    </script>
+</body>
+</html>
