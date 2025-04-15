@@ -14,8 +14,6 @@ This repository contains a comprehensive **Application Monitoring Dashboard** de
 6. [Monitoring Dashboards](#monitoring-dashboards)
 7. [API Endpoints](#api-endpoints)
 8. [Screenshots](#screenshots)
-9. [Contributing](#contributing)
-10. [License](#license)
 
 ---
 
