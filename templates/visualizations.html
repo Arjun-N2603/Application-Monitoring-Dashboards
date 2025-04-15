@@ -166,7 +166,6 @@
             <ul class="sidebar-nav">
                 <li><a href="/admin-dashboard-page" id="home-link">Admin Dashboard</a></li>
                 <li><a href="#api-dashboard" class="dashboard-link active" data-dashboard="api">API Monitoring</a></li>
-                <li><a href="#traffic-dashboard" class="dashboard-link" data-dashboard="traffic">Traffic Analysis</a></li>
                 <li><a href="#error-dashboard" class="dashboard-link" data-dashboard="errors">Error Tracking</a></li>
                 <li><a href="#logs-dashboard" class="dashboard-link" data-dashboard="logs">Real-Time Logs</a></li>
                 <li><a href="/logout">Logout</a></li>
@@ -177,9 +176,6 @@
         <div class="main-content">
             <div class="header">
                 <h1>Monitoring Dashboards</h1>
-                <div>
-                    <button class="btn btn-primary" id="refresh-btn">Refresh Data</button>
-                </div>
             </div>
 
             <div class="dashboard-description">
@@ -198,7 +194,7 @@
                 <iframe 
                     id="grafana-frame" 
                     class="dashboard-frame" 
-                    src="{{ grafana_url }}/d/api-monitoring/api-monitoring-dashboard?orgId=1&refresh=5s&from=now-1h&to=now&theme=light" 
+                    src="{{ grafana_url }}/d/api-monitoring/api-monitoring-dashboard?orgId=1&refresh=5s&from=now-1h&to=now&theme=light&kiosk" 
                     allowfullscreen>
                 </iframe>
             </div>
@@ -211,23 +207,18 @@
             const dashboardInfo = {
                 'api': {
                     title: 'API Monitoring Dashboard',
-                    description: 'This dashboard displays key metrics about API performance, including request counts, response times, and error rates. Use this to monitor the health and performance of your application\'s APIs.',
+                    description: 'This dashboard displays key metrics about API performance, including request counts, response times. Use this to monitor the health and performance of your application\'s APIs.',
                     path: '/d/api-monitoring/api-monitoring-dashboard'
-                },
-                'traffic': {
-                    title: 'Traffic Analysis Dashboard',
-                    description: 'Analyze user traffic patterns, popular endpoints, and user engagement metrics. This dashboard helps identify usage trends and optimize user experience.',
-                    path: '/d/traffic-analysis/traffic-analysis-dashboard'
                 },
                 'errors': {
                     title: 'Error Tracking Dashboard',
                     description: 'Monitor application errors, exceptions, and issues in real-time. This dashboard helps quickly identify and troubleshoot problems affecting users.',
-                    path: '/d/error-tracking/error-tracking-dashboard'
+                    path: '/d/error-metrics/error-metrics-dashboard?orgId=1&from=now-1h&to=now&timezone=browser&theme=light&kiosk'
                 },
                 'logs': {
                     title: 'Real-Time Logs Dashboard',
                     description: 'View application logs in real-time to monitor system activity, debug issues, and track user actions across the platform.',
-                    path: '/d/real-time-logs/real-time-logs-dashboard'
+                    path: 'd/real-time-logs/real-time-logs-dashboard?orgId=1&from=now-5m&to=now&timezone=browser&theme=light&kiosk'
                 }
             };
 
@@ -263,12 +254,21 @@
                         // Update iframe source
                         if (dashboardType === 'api') {
                             // The api-monitoring dashboard should exist from your provisioning
-                            grafanaFrame.src = `${grafanaBaseUrl}/d/api-monitoring/api-monitoring-dashboard?orgId=1&refresh=5s&from=now-1h&to=now&theme=light`;
-                        } else {
+                            grafanaFrame.src = `${grafanaBaseUrl}/d/api-monitoring/api-monitoring-dashboard?orgId=1&refresh=5s&from=now-1h&to=now&theme=light&kiosk`;
+                        } 
+                        if (dashboardType === 'errors') {
+                            // The api-monitoring dashboard should exist from your provisioning
+                            grafanaFrame.src = `${grafanaBaseUrl}/d/error-metrics/error-metrics-dashboard?orgId=1&from=now-1h&to=now&timezone=browser&theme=light&kiosk`;
+                        } 
+                        if (dashboardType === 'logs') {
+                            // The api-monitoring dashboard should exist from your provisioning
+                            grafanaFrame.src = `${grafanaBaseUrl}/d/real-time-logs/real-time-logs-dashboard?orgId=1&from=now-5m&to=now&timezone=browser&theme=light&kiosk`;
+                        } 
+                        /*else {
                             // For other dashboards, we'll default to the API monitoring one since they don't exist yet
                             // In a production environment, you would create these additional dashboards
-                            grafanaFrame.src = `${grafanaBaseUrl}/d/api-monitoring/api-monitoring-dashboard?orgId=1&refresh=5s&from=now-1h&to=now&theme=light`;
-                        }
+                            grafanaFrame.src = `${grafanaBaseUrl}/d/api-monitoring/api-monitoring-dashboard?orgId=1&refresh=5s&from=now-1h&to=now&theme=light&kiosk`;
+                        }*/
                         
                         // Hide loading when iframe loads
                         grafanaFrame.onload = function() {
@@ -298,3 +298,4 @@
     </script>
 </body>
 </html>
+``` 
