@@ -16,26 +16,31 @@ class APILoadGenerator:
         self.users = users  # Number of concurrent users
         self.request_interval = request_interval  # Time between requests in seconds
         self.running = False
-        # Define user credentials for each role
+        # Define user credentials for each role - ADJUSTED ROLE PROBABILITIES
         self.user_credentials = [
             {"username": "admin2", "password": "admin2", "role": "admin"},
             {"username": "prof", "password": "prof", "role": "professor"},
             {"username": "student", "password": "student", "role": "student"}
         ]
-        # Define endpoints accessible by each role - MODIFIED FOR DASHBOARDS
+        self.role_weights = {"admin": 0.25, "professor": 0.35, "student": 0.40} # Adjusted weights
+        self.roles = list(self.role_weights.keys())
+        self.weights = list(self.role_weights.values())
+
+
+        # Define endpoints accessible by each role - MODIFIED FOR DASHBOARDS (No changes needed here unless you want to add more professor/admin endpoints)
         self.role_endpoints = {
             "admin": [
                 {"path": "/admin-dashboard", "method": "GET"},
                 {"path": "/api/professors", "method": "GET"},
                 {"path": "/admin-dashboard-page", "method": "GET"},
-                {"path": "/admin/courses/create", "method": "POST"}, # Example admin action
+                {"path": "/admin/courses/create", "method": "POST", "data": {"course_name": "Generated Course", "course_code": "GC101", "instructor_id": 2, "year": 2024, "semester": 1}}, # Example admin action - ADJUST instructor_id to a valid professor ID
                 {"path": "/admin/enrollment/approve/1", "method": "POST"} # Example admin action - adjust request_id
             ],
             "professor": [
                 {"path": "/professor-dashboard", "method": "GET"},
                 {"path": "/professor-dashboard-page", "method": "GET"},
-                {"path": "/api/courses/1/details", "method": "GET"}, # Example course details
-                {"path": "/courses/1/assignments", "method": "POST", "data": {"title": "Test Assignment", "due_date": "2024-12-31 23:59:59"}}, # Create assignment - adjust course_id and data
+                {"path": "/api/courses/1/details", "method": "GET"}, # Example course details - ADJUST course_id
+                {"path": "/courses/1/assignments", "method": "POST", "data": {"title": "Generated Assignment", "due_date": "2024-12-31 23:59:59"}}, # Create assignment - adjust course_id and data
                 {"path": "/assignments/1/submissions", "method": "GET"}, # Get submissions - adjust assignment_id
                 {"path": "/submissions/1/grade", "method": "POST", "data": {"grade": 85, "feedback": "Good work!"}}, # Grade submission - adjust submission_id and data
                 {"path": "/api/assignments/upload", "method": "POST"} # Upload assignment file - would need to handle file upload in load generator if needed
@@ -50,14 +55,14 @@ class APILoadGenerator:
                 {"path": "/api/courses/1/details", "method": "GET"} # View course details - adjust course_id
             ]
         }
-        # Common endpoints for all users
+        # Common endpoints for all users (No changes needed here)
         self.common_endpoints = [
             {"path": "/api/user/role", "method": "GET"},
             {"path": "/", "method": "GET"},
             {"path": "/assignments", "method": "GET"}, # Assignments page HTML
             {"path": "/course/1", "method": "GET"} # Course page HTML - adjust course_id
         ]
-        # Public endpoints (no login required)
+        # Public endpoints (no login required) (No changes needed here)
         self.public_endpoints = [
             {"path": "/login", "method": "GET"},
             {"path": "/register", "method": "GET"}
@@ -67,8 +72,11 @@ class APILoadGenerator:
         """Make random API requests to simulate user activity."""
         session = requests.Session()
 
-        # Randomly select a user role and credentials
-        user_data = random.choice(self.user_credentials)
+        # Randomly select a user role and credentials - MODIFIED ROLE SELECTION
+        chosen_role = random.choices(self.roles, self.weights, k=1)[0] # Weighted random role selection
+        user_data = next(user for user in self.user_credentials if user["role"] == chosen_role)
+
+
         logged_in = False
         login_attempts = 0
 
@@ -107,8 +115,9 @@ class APILoadGenerator:
                         logging.info(f"User {user_id} logging out")
                         session.get(f"{self.base_url}/logout")
                         logged_in = False
-                        # Pick a new random user for next login
-                        user_data = random.choice(self.user_credentials)
+                        # Pick a new random user for next login - MODIFIED ROLE SELECTION ON LOGOUT TOO
+                        chosen_role = random.choices(self.roles, self.weights, k=1)[0] # Weighted random role selection after logout
+                        user_data = next(user for user in self.user_credentials if user["role"] == chosen_role)
                         login_attempts = 0
                         continue
 
