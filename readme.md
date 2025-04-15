@@ -100,9 +100,9 @@ The system is built using a **microservices architecture** with the following co
      docker-compose up -d
      ```
 
-5. **Install Python Dependencies**:
+5. **Running the log processor**:
    ```bash
-   pip install -r requirements.txt
+   python log_processor.py
    ```
 
 6. **Run the Flask Application**:
@@ -144,14 +144,11 @@ python load_generator.py --users 10 --interval 2
 ### Admin Dashboard
 ![admin dashboard](image.png)
 
-### Professor Dashboard
-*(Add screenshot here)*
-
-### Student Dashboard
-*(Add screenshot here)*
-
-### Grafana Dashboard
-*(Add screenshot here)*
+### Monitoring Dashboard
+![Api-monitoring-dashboard](image-1.png)
+![Error-monitoring-dashboard](image-3.png)
+![Error-monitoring-dashboard2](image-2.png)
+![Real-time-logs](image-4.png)
 
 ---
 
