@@ -139,55 +139,10 @@ python load_generator.py --users 10 --interval 2
 
 ---
 
-## Monitoring Dashboards
-
-### Prometheus Metrics
-
-- **API Request Count**: Total number of API requests.
-- **Response Time**: 95th percentile and median response times.
-- **Error Count**: Count of API errors by status code.
-
-### Grafana Panels
-
-1. **95th Percentile Response Time**: `histogram_quantile(0.95, ...)`
-2. **Median Response Time**: `histogram_quantile(0.5, ...)`
-3. **Total API Requests**: `api_request_count_total`
-4. **Real-Time Logs**: Logs from Loki.
-
----
-
-## API Endpoints
-
-### Common Endpoints
-
-- `POST /register`: Register a new user.
-- `POST /login`: Login to the system.
-- `GET /logout`: Logout from the system.
-
-### Admin Endpoints
-
-- `GET /admin-dashboard`: Fetch admin dashboard data.
-- `POST /admin/courses/create`: Create a new course.
-- `POST /admin/enrollment/approve/<id>`: Approve an enrollment request.
-
-### Professor Endpoints
-
-- `GET /professor-dashboard`: Fetch professor dashboard data.
-- `POST /courses/<id>/assignments`: Create a new assignment.
-- `POST /submissions/<id>/grade`: Grade a submission.
-
-### Student Endpoints
-
-- `GET /student-dashboard`: Fetch student dashboard data.
-- `POST /assignments/<id>/submit`: Submit an assignment.
-- `POST /student/courses/request/<id>`: Request enrollment in a course.
-
----
-
 ## Screenshots
 
 ### Admin Dashboard
-*(Add screenshot here)*
+![admin dashboard](image.png)
 
 ### Professor Dashboard
 *(Add screenshot here)*
@@ -200,17 +155,3 @@ python load_generator.py --users 10 --interval 2
 
 ---
 
-## Contributing
-
-Contributions are welcome! Please follow these steps:
-
-1. Fork the repository.
-2. Create a new branch for your feature or bug fix.
-3. Commit your changes and push them to your fork.
-4. Submit a pull request.
-
----
-
-## License
-
-This project is licensed under the MIT License. See the `LICENSE` file for details.
